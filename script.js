@@ -1,68 +1,80 @@
-function getComputerChoice() {
-  const choices = ['rock', 'paper', 'scissors'];
-  const randomIndex = Math.floor(Math.random() * choices.length);
-  return choices[randomIndex];
+//STATO DEL GIOCO
+let humanScore = 0;
+let computerScore = 0;
+const WIN_SCORE = 5;
+
+//FUNZIONI ORIGINALI ADATTATE
+function getComputerChoice(){
+    const choices= ['rock', 'paper', 'scissors'];
+    const randomIndex= Math.floor(Math.random()*choices.length);
+    return choices[randomIndex];
 }
-
-function getHumanChoice() {
-  // Chiedo finché non inserisci un input valido o annulli
-  while (true) {
-    const input = prompt("Enter your choice: rock, paper, or scissors");
-    if (input === null) return null; // utente ha annullato
-    const choice = input.trim().toLowerCase();
-    if (choice === 'rock' || choice === 'paper' || choice === 'scissors') {
-      return choice;
-    }
-    alert("Invalid choice. Please type: rock, paper, or scissors.");
-  }
-}
-
-function playGame() {
-  let humanScore = 0;
-  let computerScore = 0;
-
-  function playRound(humanChoice, computerChoice) {
-    if (humanChoice === computerChoice) {
-      return "It's a tie!";
-    } else if (
-      (humanChoice === 'rock' && computerChoice === 'scissors') ||
-      (humanChoice === 'paper' && computerChoice === 'rock') ||
-      (humanChoice === 'scissors' && computerChoice === 'paper')
-    ) {
-      humanScore++;
-      return `You win! ${humanChoice} beats ${computerChoice}.`;
-    } else {
-      computerScore++;
-      return `You lose! ${computerChoice} beats ${humanChoice}.`;
-    }
-  }
-
-  // 5 round
-  for (let i = 1; i <= 5; i++) {
-    const humanChoice = getHumanChoice();
-    if (humanChoice === null) {
-      console.log("Game canceled.");
-      return;
-    }
-    const computerChoice = getComputerChoice();
-    const result = playRound(humanChoice, computerChoice);
-
-    console.log(`Round ${i}:`);
-    console.log(`You: ${humanChoice} | Computer: ${computerChoice}`);
-    console.log(result);
-    console.log(`Score → You: ${humanScore} | Computer: ${computerScore}`);
-    console.log('------------------------');
-  }
-
-  // Risultato finale
-  if (humanScore > computerScore) {
-    console.log(`Final: You win the game! (${humanScore} - ${computerScore})`);
-  } else if (humanScore < computerScore) {
-    console.log(`Final: You lose the game! (${humanScore} - ${computerScore})`);
+// Ora playRound NON fa loop e NON legge input: riceve le scelte e ritorna l'esito
+function playRound(humanChoice, computerChoice) {
+  if (humanChoice === computerChoice) {
+    return { result: 'draw', message: "It's a tie!" };
+  } else if (
+    (humanChoice === 'rock' && computerChoice === 'scissors') ||
+    (humanChoice === 'paper' && computerChoice === 'rock') ||
+    (humanChoice === 'scissors' && computerChoice === 'paper')
+  ) {
+    return { result: 'human', message: `You win! ${humanChoice} beats ${computerChoice}.` };
   } else {
-    console.log(`Final: It's a draw! (${humanScore} - ${computerScore})`);
+    return { result: 'computer', message: `You lose! ${computerChoice} beats ${humanChoice}.` };
   }
 }
+// --- Riferimenti DOM (assicurati di avere questi elementi in HTML) ---
+const buttons = document.querySelectorAll('button[data-choice]');
+const roundDiv = document.getElementById('round');   // <div id="round"></div>
+const scoreDiv = document.getElementById('score');   // <div id="score"></div>
+const winnerDiv = document.getElementById('winner'); // <div id="winner"></div>
+const resetBtn = document.getElementById('reset');   // <button id="reset">Reset</button>
 
-// Esegui una partita da 5 round
-playGame();
+// --- Helpers UI ---
+function updateScoreUI() {
+  scoreDiv.textContent = `You: ${humanScore} | Computer: ${computerScore}`;
+}
+
+function endIfWinner() {
+  if (humanScore >= WIN_SCORE || computerScore >= WIN_SCORE) {
+    const msg = humanScore > computerScore ? 'You won the game! 🏆' : 'Computer won the game. 💻';
+    winnerDiv.textContent = msg;
+    buttons.forEach(b => b.disabled = true);
+    resetBtn.style.display = 'inline-block';
+    return true;
+  }
+  return false;
+}
+
+// --- Eventi sui bottoni scelta ---
+buttons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const humanChoice = btn.dataset.choice;     // 'rock' | 'paper' | 'scissors'
+    const computerChoice = getComputerChoice();
+
+    const outcome = playRound(humanChoice, computerChoice);
+
+    if (outcome.result === 'human') humanScore++;
+    if (outcome.result === 'computer') computerScore++;
+
+    roundDiv.textContent = `You: ${humanChoice} | Computer: ${computerChoice} → ${outcome.message}`;
+    updateScoreUI();
+    endIfWinner();
+  });
+});
+
+// --- Reset ---
+resetBtn.addEventListener('click', () => {
+  humanScore = 0;
+  computerScore = 0;
+  roundDiv.textContent = 'Make your move…';
+  winnerDiv.textContent = '';
+  updateScoreUI();
+  buttons.forEach(b => b.disabled = false);
+  resetBtn.style.display = 'none';
+});
+
+// --- Init UI ---
+roundDiv.textContent = 'Make your move…';
+updateScoreUI();
+resetBtn.style.display = 'none';

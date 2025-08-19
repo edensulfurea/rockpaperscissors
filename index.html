@@ -1,11 +1,23 @@
-<!DOCTYPE html> 
-<html lang="en">
+<!DOCTYPE html>
+<html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rock paper scissors</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="script.js" defer></script>
-</head> 
-<body></body>
-</html>
+  <meta charset="UTF-8">
+  <title>Rock Paper Scissors</title>
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <h1>Rock · Paper · Scissors</h1>
+
+  <div class="buttons">
+    <button data-choice="rock">Rock</button>
+    <button data-choice="paper">Paper</button>
+    <button data-choice="scissors">Scissors</button>
+  </div>
+
+  <div id="results">
+    <div id="round">Fai la tua scelta…</div>
+    <div id="score">You: 0 | Computer: 0</div>
+    <div id="winner"></div>
+  </div>
+
+  <button id="reset">Reset</bu
